@@ -8,11 +8,18 @@
         <Console name="console" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
+        <Kafka name="kafkaLogAppender" topic="logs">
+            <JSONLayout />
+            <Property name="bootstrap.servers">localhost:9092</Property>
+            <MarkerFilter marker="Recorder" onMatch="DENY" onMismatch="ACCEPT"/>
+        </Kafka>
     </Appenders>
 
     <Loggers>
         <Root level="info">
+            <AppenderRef ref="kafkaLogAppender"/>
             <AppenderRef ref="console"/>
         </Root>
+        <Logger name="org.apache.kafka" level="warn" />
     </Loggers>
 </Configuration>
