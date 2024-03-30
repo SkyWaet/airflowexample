@@ -59,23 +59,9 @@ public class Consumer {
                         .bucket("logs")
                         .build());
                 Files.deleteIfExists(filePath);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ServerException e) {
-                throw new RuntimeException(e);
-            } catch (InsufficientDataException e) {
-                throw new RuntimeException(e);
-            } catch (ErrorResponseException e) {
-                throw new RuntimeException(e);
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
-            } catch (InvalidKeyException e) {
-                throw new RuntimeException(e);
-            } catch (InvalidResponseException e) {
-                throw new RuntimeException(e);
-            } catch (XmlParserException e) {
-                throw new RuntimeException(e);
-            } catch (InternalException e) {
+            } catch (IOException | ServerException | InsufficientDataException | ErrorResponseException |
+                     NoSuchAlgorithmException | InvalidKeyException | InvalidResponseException | XmlParserException |
+                     InternalException e) {
                 throw new RuntimeException(e);
             }
 
@@ -94,7 +80,6 @@ public class Consumer {
                     }
                 }
             }
-
         }
     }
 
