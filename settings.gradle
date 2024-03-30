@@ -1,3 +1,4 @@
 rootProject.name = 'aifrlowexample'
 include 'producer'
+include 'consumer'
 

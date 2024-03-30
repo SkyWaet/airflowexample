@@ -6,7 +6,7 @@ import com.skywaet.airflowexample.producer.RandomService;
 
 import java.util.concurrent.Executors;
 
-public class Main {
+public class Producer {
     public static void main(String[] args) {
         var executor = Executors.newVirtualThreadPerTaskExecutor();
         executor.submit(new AlwaysErrorService());
