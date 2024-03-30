@@ -2,7 +2,6 @@ package com.skywaet;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
-import io.minio.errors.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -17,11 +16,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Properties;
@@ -50,29 +46,36 @@ public class Consumer {
         var executor = Executors.newSingleThreadScheduledExecutor();
 
         executor.scheduleAtFixedRate(() -> {
-            var fileName = getFileName(LocalDateTime.now().minusMinutes(1));
+            var fileName = getFileName(ZonedDateTime.now().minusMinutes(2));
             var filePath = tempDir.resolve(fileName);
+            if (!Files.exists(filePath)) {
+                log.warn("File {} does not exist", filePath);
+                return;
+            }
             try (var stream = new FileInputStream(filePath.toFile())) {
+                log.info("Uploading logs");
                 minioClient.putObject(PutObjectArgs.builder()
                         .stream(stream, -1, 5 * 1024 * 1024)
                         .object(fileName)
                         .bucket("logs")
                         .build());
-                Files.deleteIfExists(filePath);
-            } catch (IOException | ServerException | InsufficientDataException | ErrorResponseException |
-                     NoSuchAlgorithmException | InvalidKeyException | InvalidResponseException | XmlParserException |
-                     InternalException e) {
+            } catch (Exception e) {
+                log.error("Error while uploading logs", e);
                 throw new RuntimeException(e);
             }
-
-        }, 1, 1, TimeUnit.MINUTES);
+            try {
+                Files.deleteIfExists(filePath);
+            } catch (IOException e) {
+                log.error("Error while deleting file", e);
+            }
+        }, 2, 1, TimeUnit.MINUTES);
 
         log.info(tempDir.toString());
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProperties)) {
             consumer.subscribe(List.of("logs"));
             while (true) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-                var file = tempDir.resolve(getFileName(LocalDateTime.now()));
+                var file = tempDir.resolve(getFileName(ZonedDateTime.now()));
                 try (var writer = new FileWriter(file.toFile(), true)) {
                     for (ConsumerRecord<String, String> record : records) {
                         log.info("Processing message {}", record.value());
@@ -83,7 +86,7 @@ public class Consumer {
         }
     }
 
-    private static String getFileName(LocalDateTime time) {
-        return "timestamp-" + time.truncatedTo(ChronoUnit.MINUTES).toEpochSecond(ZoneOffset.UTC);
+    private static String getFileName(ZonedDateTime time) {
+        return "timestamp-" + time.truncatedTo(ChronoUnit.MINUTES).toEpochSecond();
     }
 }
