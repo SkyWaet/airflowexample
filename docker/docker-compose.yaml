@@ -89,3 +89,4 @@ services:
 networks:
   kafka-net:
     driver: bridge
+    name: airflow-example-network
