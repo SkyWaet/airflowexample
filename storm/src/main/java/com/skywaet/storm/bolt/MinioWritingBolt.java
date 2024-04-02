@@ -42,7 +42,7 @@ public class MinioWritingBolt extends BaseRichBolt {
         var result = deserialize(rawResult);
         var message = String.format("WARN logs = %d\nERROR logs = %d\n", result.getErrorLogs(), result.getWarnLogs());
         client.putData(bucketName,
-                "timestamp-" + result.getTimestamp(),
+                result.getTimestamp(),
                 new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8)));
     }
 

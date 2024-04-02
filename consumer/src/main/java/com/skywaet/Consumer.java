@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Properties;
@@ -87,6 +88,6 @@ public class Consumer {
     }
 
     private static String getFileName(ZonedDateTime time) {
-        return "timestamp-" + time.truncatedTo(ChronoUnit.MINUTES).toEpochSecond();
+        return time.truncatedTo(ChronoUnit.MINUTES).format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm"));
     }
 }

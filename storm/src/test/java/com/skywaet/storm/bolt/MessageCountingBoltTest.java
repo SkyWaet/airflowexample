@@ -32,11 +32,11 @@ class MessageCountingBoltTest {
         when(tuple1.getStringByField("level")).thenReturn("ERROR");
 
         var tuple2 = mock(Tuple.class);
-        when(tuple2.getStringByField("timestamp")).thenReturn("2024-03-30T21:49:38.378Z");
+        when(tuple2.getStringByField("timestamp")).thenReturn("2024-04-02--18-49");
         when(tuple2.getStringByField("level")).thenReturn("WARN");
 
         var tuple3 = mock(Tuple.class);
-        when(tuple3.getStringByField("timestamp")).thenReturn("2024-03-30T21:50:05.378Z");
+        when(tuple3.getStringByField("timestamp")).thenReturn("2024-04-02--18-50");
         when(tuple3.getStringByField("level")).thenReturn("ERROR");
 
 
@@ -51,8 +51,8 @@ class MessageCountingBoltTest {
 
         assertThat(argumentCaptor.getAllValues().stream().flatMap(Collection::stream).collect(Collectors.toList()))
                 .asInstanceOf(InstanceOfAssertFactories.list(Object.class))
-                .containsExactlyInAnyOrder("{\"timestamp\":1711835400,\"warnLogs\":0,\"errorLogs\":1}",
-                        "{\"timestamp\":1711835340,\"warnLogs\":1,\"errorLogs\":1}");
+                .containsExactlyInAnyOrder("{\"timestamp\":\"2024-04-02--18-49\",\"warnLogs\":1,\"errorLogs\":1}",
+                        "{\"timestamp\":\"2024-04-02--18-50\",\"warnLogs\":0,\"errorLogs\":1}");
     }
 
 }

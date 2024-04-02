@@ -13,7 +13,8 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.apache.storm.windowing.TupleWindow;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class MessageCountingBolt extends BaseWindowedBolt {
                 .collect(Collectors.toMap(this::extractTimestamp, this::toMessageMap, this::merge))
                 .entrySet()
                 .stream()
-                .map(entry -> new Result(entry.getKey(),
+                .map(entry -> new Result(entry.getKey().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm")),
                         entry.getValue().getOrDefault("WARN", 0L),
                         entry.getValue().getOrDefault("ERROR", 0L)))
                 .map(this::serialize)
@@ -46,9 +47,9 @@ public class MessageCountingBolt extends BaseWindowedBolt {
                 .forEach(outputCollector::emit);
     }
 
-    private Long extractTimestamp(Tuple tuple) {
-        return ZonedDateTime.parse(tuple.getStringByField("timestamp"))
-                .truncatedTo(ChronoUnit.MINUTES).toEpochSecond();
+    private LocalDateTime extractTimestamp(Tuple tuple) {
+        return LocalDateTime.parse(tuple.getStringByField("timestamp"), DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm-ss"))
+                .truncatedTo(ChronoUnit.MINUTES);
     }
 
     private Map<String, Long> toMessageMap(Tuple tuple) {
@@ -78,12 +79,12 @@ public class MessageCountingBolt extends BaseWindowedBolt {
     }
 
     public static class Result {
-        private final Long timestamp;
+        private final String timestamp;
         private final Long warnLogs;
         private final Long errorLogs;
 
         @JsonCreator
-        public Result(@JsonProperty("timestamp") Long timestamp,
+        public Result(@JsonProperty("timestamp") String timestamp,
                       @JsonProperty("warnLogs") Long warnLogs,
                       @JsonProperty("errorLogs") Long errorLogs) {
             this.timestamp = timestamp;
@@ -92,7 +93,7 @@ public class MessageCountingBolt extends BaseWindowedBolt {
         }
 
         @JsonProperty
-        public Long getTimestamp() {
+        public String getTimestamp() {
             return timestamp;
         }
 

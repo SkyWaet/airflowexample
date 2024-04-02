@@ -9,7 +9,7 @@
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
         <Kafka name="kafkaLogAppender" topic="logs" key="log">
-            <JsonTemplateLayout/>
+            <JsonTemplateLayout eventTemplateUri="classpath:EventLayout.json"/>
             <Property name="bootstrap.servers">localhost:9092</Property>
             <MarkerFilter marker="Recorder" onMatch="DENY" onMismatch="ACCEPT"/>
         </Kafka>
