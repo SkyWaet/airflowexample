@@ -44,7 +44,7 @@ class DailyReport:
 with DAG(
         dag_id="create_daily_report",
         start_date=datetime(2024, 3, 31),
-        schedule="@daily",
+        schedule="55 23 * * *",
 ):
     @task
     def read_file_content(bucket: str, file_name: str) -> list:
