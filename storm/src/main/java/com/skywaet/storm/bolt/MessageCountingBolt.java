@@ -48,7 +48,7 @@ public class MessageCountingBolt extends BaseWindowedBolt {
     }
 
     private LocalDateTime extractTimestamp(Tuple tuple) {
-        return LocalDateTime.parse(tuple.getStringByField("timestamp"), DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm-ss"))
+        return LocalDateTime.parse(tuple.getStringByField("timestamp"), DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm"))
                 .truncatedTo(ChronoUnit.MINUTES);
     }
 

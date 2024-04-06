@@ -61,13 +61,14 @@ with DAG(
     @task
     def grouping_by_hour(messages: list) -> dict:
         result = {}
-        for message in chain.from_iterable(messages):
-            hour_timestamp = message.timestamp.replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%d--%H")
-            if hour_timestamp in result:
-                result[hour_timestamp].append(message)
-            else:
-                result[hour_timestamp] = [message]
+        for hour_timestamp, messages in groupby(sorted(chain.from_iterable(messages), key=get_hour_timestamp),
+                                                get_hour_timestamp):
+            result[hour_timestamp] = list(messages)
         return result
+
+
+    def get_hour_timestamp(message: LogMessage) -> str:
+        return message.timestamp.replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%d--%H")
 
 
     @task
